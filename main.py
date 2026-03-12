@@ -8,7 +8,7 @@ class Personagem:
     def atacar(self, alvo): 
         dano = max(0, self.ataque - alvo.defesa) # max(0) para o dano não ser negativo caso a defesa seja maior que o ataque
         alvo.receber_dano(dano) 
-        return 'f{self.nome} causou {dano} de dano!'
+        return f'{self.nome} causou {dano} de dano!'
         
     def receber_dano(self, dano): 
         self._vida = max(0, self._vida - dano) # mesma coisa sobre omax(0) no dano
@@ -29,7 +29,7 @@ class Guerreiro(Personagem):
             dano = max(0, (self.ataque * 2) - alvo.defesa)
             alvo.receber_dano(dano)
             self.energia -= 20
-            return 'f{self.nome} te deu um golpe de espada e causou {dano} de dano!'
+            return f'{self.nome} te deu um golpe de espada e causou {dano} de dano!'
         return f'{self.nome} não tem energia o suficiente!'
     
 class Mago(Personagem):
@@ -39,7 +39,7 @@ class Mago(Personagem):
 
     def bola_de_fogo(self, alvo):
         if self.mana >= 30:
-            dano = max(0, (self.ataque * 3) - self.defesa)
+            dano = max(0, (self.ataque * 3) - alvo.defesa)
             alvo.receber_dano(dano)
             self.mana -= 30
             return f'{self.nome} usou bola de fogo e causou {dano} de dano!'
@@ -50,19 +50,57 @@ class Inimigo(Personagem):
         super().__init__(nome, vida=50, ataque=10, defesa=15)
 
 def batalha(heroi, vilao):
+    turno = 1
+
     while heroi.esta_vivo() and vilao.esta_vivo():
 
         print(heroi)
         print(vilao)
 
-        acao = input('1 - Atacar | 2 - Defender: ')
-        while acao not in [1 and 2]:
-            print('Digite uma resposta válida **Apenas 1 ou 2**')
-            acao = input('1 - Atacar | 2 - Defender: ')
+        opcoes = {'1': 'Ataque', '2': 'Habilidade especial'}
 
-            if acao == '1' or acao == '2':
-                break
+        if isinstance(heroi, Guerreiro):
+            opcoes['2'] = f'Golpe de Espada (Energia: {heroi.energia})'
+        elif isinstance(heroi, Mago):
+            opcoes['2'] = f'Bola de Fogo (Mana: {heroi.mana})'
 
+        print('\nO que deseja fazer?')
+        for key, value in opcoes.items():
+            print(f' {key} - {value}')
+
+        acao = ''
+        while acao not in opcoes:
+            acao = input('\nEscolha uma ação: ')
+            if acao not in opcoes:
+                print(f'Digite uma opção válida. {list(opcoes.keys())}')
+
+        print('\n-- Ação do Herói --')
         if acao == '1':
-            print(heroi.atacar(vilao))
+            resultado = heroi.atacar(vilao)
+        elif acao == '2':
+            if isinstance(heroi, Guerreiro):
+                resultado = heroi.espada(vilao)
+            elif isinstance(heroi, Mago):
+                resultado = heroi.bola_de_fogo(vilao)
+        print(resultado)
 
+        if not vilao.esta_vivo():
+            break
+
+        print('\n-- Ação do Vilão --')
+        resultado_vilao = vilao.atacar(heroi)
+        print(resultado_vilao)
+
+        turno += 1
+
+    print('\n===== FIM DA BATALHA =====')
+    if heroi.esta_vivo():
+        print(f' {heroi.nome} venceu a batalha!')
+    else:
+        print(f' {heroi.nome} foi derrotado...')
+
+
+
+guerreiro = Guerreiro('Heitor')
+inimigo = Inimigo('Satanás')
+batalha(guerreiro, inimigo)
