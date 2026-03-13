@@ -8,7 +8,7 @@ class Personagem:
     def atacar(self, alvo): 
         dano = max(0, self.ataque - alvo.defesa) # max(0) para o dano não ser negativo caso a defesa seja maior que o ataque
         alvo.receber_dano(dano) 
-        return f'{self.nome} causou {dano} de dano!'
+        return f'{self.nome} causou {dano} de dano!\n'
         
     def receber_dano(self, dano): 
         self._vida = max(0, self._vida - dano) # mesma coisa sobre omax(0) no dano
@@ -16,7 +16,7 @@ class Personagem:
     def esta_vivo(self): 
         return self._vida > 0 
     
-    def str(self): 
+    def __str__(self): 
         return f'{self.nome} - Vida: {self._vida}'
     
 class Guerreiro(Personagem):
